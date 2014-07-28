@@ -1,0 +1,3 @@
+Dependencies for Project 'lab03display', Target 'LPC1768_RAM': (DO NOT MODIFY !)
+F (.\Lab3_display.s)(0x5318A50E)(--cpu Cortex-M3 -g --apcs=interwork -I C:\Software\Keil\ARM\RV31\INC -I C:\Software\Keil\ARM\CMSIS\Include -I C:\Software\Keil\ARM\Inc\NXP\LPC17xx --list "Lab3_display.lst" --xref -o "Lab3_display.o" --depend "Lab3_display.d")
+F (.\startup_LPC17xx.s)(0x52D69DB1)(--cpu Cortex-M3 -g --apcs=interwork -I C:\Software\Keil\ARM\RV31\INC -I C:\Software\Keil\ARM\CMSIS\Include -I C:\Software\Keil\ARM\Inc\NXP\LPC17xx --list "startup_LPC17xx.lst" --xref -o "startup_LPC17xx.o" --depend "startup_LPC17xx.d")

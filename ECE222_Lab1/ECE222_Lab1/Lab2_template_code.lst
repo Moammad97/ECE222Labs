@@ -1,0 +1,499 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;*------------------------------------------------------
+                       ----------------------
+    2 00000000         ;* Name:    Lab_2_program.s
+    3 00000000         ;* Purpose: Template code for using subroutines to imple
+                       ment Morse code 
+    4 00000000         ;* Author:  Rasoul Keshavarzi 
+    5 00000000         ;*------------------------------------------------------
+                       ----------------------*/
+    6 00000000         
+    7 00000000                 THUMB                        ; Declare THUMB ins
+                                                            truction set 
+    8 00000000                 AREA             My_code, CODE, READONLY
+    9 00000000                 EXPORT           __MAIN      ; Label __MAIN is u
+                                                            sed externally q
+   10 00000000                 ENTRY
+   11 00000000         __MAIN
+   12 00000000         ; The following lines are similar to Lab-1.  
+   13 00000000         ; They just turn off all LEDs 
+   14 00000000 F44F 4240       MOV              R2, #0xC000
+   15 00000004 F04F 4330       MOV              R3, #0xB0000000 ; Turn off thre
+                                                            e LEDs on port 1  
+   16 00000008 F04F 0400       MOV              R4, #0x0
+   17 0000000C F2C2 0409       MOVT             R4, #0x2009
+   18 00000010 4414            ADD              R4, R4, R2  ; 0x2009C000 
+   19 00000012 6223            STR              R3, [R4, #0x20]
+   20 00000014 F04F 037C       MOV              R3, #0x0000007C
+   21 00000018 6423            STR              R3, [R4, #0x40] ; Turn off five
+                                                             LEDs on port 2 
+   22 0000001A         
+   23 0000001A F04F 0100       MOV              R1, #0x0    ; R1 is the OFFSET 
+                                                            and counter of the 
+                                                            5 characters
+   24 0000001E 2905    MAIN_LOOP
+                               CMP              R1, #5      ; Check R1 to disco
+                                                            ver if the 5 charac
+                                                            ters were processed
+                                                            
+   25 00000020 D00C            BEQ              DOTS_AND_R1 ; insert 4 dots LED
+                                                             OFF and do R1=0 to
+                                                             restart the progra
+                                                            m
+   26 00000022 4845    RESTART_PROGRAM
+                               LDR              R0, =InputChar ; getting the ad
+                                                            dress InputChar (ad
+                                                            dress of my input/"
+                                                            MARIN"
+   27 00000024 5C42            LDRB             R2, [R0, R1] ; Reading a charac
+                                                            ter of the InputCha
+                                                            r. R1 is the OFFSET
+                                                            
+   28 00000026 F1A2 0241       SUB              R2, R2, #0x41 ; Finding the OFF
+                                                            SET (to discover th
+                                                            e position of the c
+                                                            haracter in the MOR
+                                                            SE table)
+   29 0000002A EA4F 0242       LSL              R2, R2, #1  ; Multiply R2 by 2 
+                                                            to find the correct
+                                                             OFFSET (1/2 word)
+   30 0000002E 4B43            LDR              R3, =Morse_LUT
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   31 00000030 5A98            LDRH             R0, [R3, R2] ; Placing the Mors
+                                                            e pattern into R0
+   32 00000032 F000 F828       BL               CHAR2MORSE  ; Go to the routine
+                                                             that turns the LED
+                                                             ON and OFF accordi
+                                                            ng to the Morse cod
+                                                            e
+   33 00000036 F101 0101       ADD              R1, R1, #1  ; Fixing the OFFSET
+                                                             and counter
+   34 0000003A         ; insert 3 dots of LED OFF
+   35 0000003A E7F0            B                MAIN_LOOP
+   36 0000003C         
+   37 0000003C F000 F80F 
+                       DOTS_AND_R1
+                               BL               LED_OFF
+   38 00000040 F04F 0B04       MOV              R11, #4     ; adding 4 dots of 
+                                                            led off to my delay
+                                                            
+   39 00000044 F000 F813       BL               DELAY
+   40 00000048 F04F 0100       MOV              R1, #0x0    ; initial value of 
+                                                            R1 to set the OFFSE
+                                                            T correctly
+   41 0000004C E7E9            B                RESTART_PROGRAM
+   42 0000004E         
+   43 0000004E         LED_ON
+   44 0000004E E92D 4183       STMFD            R13!, {R0, R1, R7, R8, R14} ; I
+                                                            'm saving all regis
+                                                            ters and the link r
+                                                            egister
+   45 00000052 483B            LDR              R0, =LED_ADR ; loading the addr
+                                                            ess of the port/LED
+                                                            
+   46 00000054 F04F 4120       MOV              R1, #0xA0000000 ; moving the va
+                                                            lue to turn the LED
+                                                             off into R1
+   47 00000058 6001            STR              R1, [R0]    ; Turns off the LED
+                                                            
+   48 0000005A E8BD 8183       LDMFD            R13!, {R0, R1, R7, R8, R15}
+   49 0000005E         
+   50 0000005E         LED_OFF
+   51 0000005E E92D 4183       STMFD            R13!, {R0, R1, R7, R8, R14} ; I
+                                                            'm saving all regis
+                                                            ters and the link r
+                                                            egister
+   52 00000062 4837            LDR              R0, =LED_ADR ; loading the addr
+                                                            ess of the port/LED
+                                                            
+   53 00000064 F04F 4130       MOV              R1, #0xB0000000 ; moving the va
+                                                            lue to turn the LED
+                                                             off into R1
+   54 00000068 6001            STR              R1, [R0]    ; Turns off the LED
+                                                            
+   55 0000006A E8BD 8183       LDMFD            R13!, {R0, R1, R7, R8, R15}
+   56 0000006E         
+   57 0000006E E92D 4802 
+                       DELAY   STMFD            R13!, {R1, R11, R14} ; I'm savi
+                                                            ng all registers an
+                                                            d the link register
+                                                            
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+   58 00000072 F64F 2120       MOV              R1, #0xFA20 ; Setting the count
+                                                            er
+   59 00000076 F2C0 010F       MOVT             R1, #0x000F
+   60 0000007A FB01 F10B       MUL              R1, R1, R11 ; R11 is how many d
+                                                            elays I wanna do (u
+                                                            se it with R11 = 1,
+                                                             3, 4)
+   61 0000007E 1E49    Loop1   SUBS             R1, R1, #1  ; Decrement counter
+                                                            
+   62 00000080 DCFD            BGT              Loop1
+   63 00000082 E8BD 8802       LDMFD            R13!, {R1, R11, R15}
+   64 00000086         
+   65 00000086 E92D 4FFF 
+                       CHAR2MORSE
+                               STMFD            R13!, {R0-R11, R14} ; I'm savin
+                                                            g all registers and
+                                                             the link register
+   66 0000008A F04F 010F       MOV              R1, #0xF    ; R1 is a counter
+   67 0000008E         ;I have to remove the zeros before the first 1, so:
+   68 0000008E F04F 0A00       MOV              R10, #0x0
+   69 00000092 F04F 0500       MOV              R5, #0x00
+   70 00000096 F04F 0B01       MOV              R11, #0x1   ; setting the param
+                                                            eter of my DELAY
+   71 0000009A F410 4500 
+                       GO_BACK ANDS             R5, R0, #0x8000 ; to analyze th
+                                                            e bit 15 (half word
+                                                            )
+   72 0000009E D106            BNE              SKIP        ; if the MSbit is 1
+                                                            , we can skip one p
+                                                            art of the code
+   73 000000A0 EA4F 0040       LSL              R0, R0, #1
+   74 000000A4 F1A1 0101       SUB              R1, R1, #1
+   75 000000A8 F10A 0A01       ADD              R10, R10, #1 ; The number I did
+                                                             LSL. I will use th
+                                                            is number to do the
+                                                             correct number of 
+                                                            LSL to check the R1
+                                                            'th bit
+   76 000000AC E7F5            B                GO_BACK
+   77 000000AE F04F 0700 
+                       SKIP    MOV              R7, #0x0    ; Cleanning the Fla
+                                                            g
+   78 000000B2 1C09    LOOP_BIT
+                               ADDS             R1, R1, #0x0 ; Setting setting 
+                                                            the flags to discov
+                                                            er if the counter i
+                                                            s smaller than 0
+   79 000000B4 DB16            BLT              ADD_3_DOTS
+   80 000000B6 F04F 0901       MOV              R9, #0x1    ; Forming the value
+                                                             to check the R1'th
+                                                             bit
+   81 000000BA FA09 F90A       LSL              R9, R9, R10 ; Forming the value
+                                                             to check the R1'th
+                                                             bit
+   82 000000BE FA09 F901       LSL              R9, R9, R1  ; Forming the value
+                                                             to check the R1'th
+                                                             bit
+   83 000000C2 EA10 0809       ANDS             R8, R0, R9  ; Check the R1'th b
+                                                            it. R0 has the mors
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+                                                            e code. 
+   84 000000C6 D008            BEQ              BIT_ZERO    ; R1'th bit is zero
+                                                             => LED should be/g
+                                                            et OFF
+   85 000000C8 F7FF FFC1       BL               LED_ON      ; Turn LED ON if R1
+                                                            'th bit is 1
+   86 000000CC F04F 0701       MOV              R7, #0x01   ; Setting Flag to s
+                                                            ay that the LED is 
+                                                            ON
+   87 000000D0 F7FF FFCD 
+                       RETURN  BL               DELAY
+   88 000000D4 F1A1 0101 
+                       SKIP_ON SUB              R1, R1, #1  ; Decrement the cou
+                                                            nter
+   89 000000D8 E7EB            B                LOOP_BIT    ; Go back to analyz
+                                                            e the other bits
+   90 000000DA 1C3F    BIT_ZERO
+                               ADDS             R7, R7, #0  ; Fixing flags to d
+                                                            iscover the value o
+                                                            f R7
+   91 000000DC D0FA            BEQ              SKIP_ON     ; Flag=0 => LED is 
+                                                            OFF. Skip steps whe
+                                                            n LED is ON
+   92 000000DE F7FF FFBE       BL               LED_OFF
+   93 000000E2 E7F5            B                RETURN
+   94 000000E4         
+   95 000000E4 F7FF FFBB 
+                       ADD_3_DOTS
+                               BL               LED_OFF
+   96 000000E8 F04F 0B03       MOV              R11, #3     ; adding 3 dots of 
+                                                            led off to my delay
+                                                            
+   97 000000EC F7FF FFBF       BL               DELAY
+   98 000000F0 E7FF            B                EXIT_SUBR
+   99 000000F2         
+  100 000000F2 E8BD 8FFF 
+                       EXIT_SUBR
+                               LDMFD            R13!, {R0-R11, R15} ; returning
+                                                             saved values
+  101 000000F6         
+  102 000000F6 00 00           ALIGN
+  103 000000F8         InputChar
+  104 000000F8 4D 41 52 
+              49 4E 00         DCB              "MARIN", 0  ; The word to be se
+                                                            nt to LED using Mor
+                                                            se
+  105 000000FE         
+  106 000000FE 00 00           ALIGN
+  107 00000100         Morse_LUT
+  108 00000100 17 00 D5 
+              01 5D 07 
+              75 00            DCW              0x17, 0x1D5, 0x75D, 0x75 
+                                                            ; A, B, C, D 
+  109 00000108 01 00 5D 
+              01 DD 01 
+              55 00            DCW              0x1, 0x15D, 0x1DD, 0x55 
+                                                            ; E, F, G, H 
+  110 00000110 05 00 77 
+              17 D7 01 
+
+
+
+ARM Macro Assembler    Page 5 
+
+
+              75 01            DCW              0x5, 0x1777, 0x1D7, 0x175 
+                                                            ; I, J, K, L 
+  111 00000118 77 00 1D 
+              00 77 07 
+              DD 05            DCW              0x77, 0x1D, 0x777, 0x5DD 
+                                                            ; M, N, O, P 
+  112 00000120 D7 1D 5D 
+              00 15 00 
+              07 00            DCW              0x1DD7, 0x5D, 0x15, 0x7 
+                                                            ; Q, R, S, T 
+  113 00000128 57 00 57 
+              01 77 01 
+              57 07            DCW              0x57, 0x157, 0x177, 0x757 
+                                                            ; U, V, W, X 
+  114 00000130 77 1D 75 
+              07               DCW              0x1D77, 0x775 ; Y, Z 
+  115 00000134 00 00           DCW              0
+  116 00000136         
+  117 00000136 00 00           ALIGN
+  118 00000138 2009C020 
+                       LED_ADR EQU              0x2009C020  ; Address of the me
+                                                            mory that controls 
+                                                            the LED 
+  119 00000138         
+  120 00000138                 END
+              00000000 
+              00000000 
+              2009C020 
+              00000000 
+Command Line: --debug --xref --cpu=Cortex-M3 --apcs=interwork --depend=.\Lab2_t
+emplate_code.d -o.\Lab2_template_code.o -IC:\Software\Keil\ARM\RV31\INC -IC:\So
+ftware\Keil\ARM\CMSIS\Include -IC:\Software\Keil\ARM\Inc\NXP\LPC17xx --list=.\L
+ab2_template_code.lst N:\ECE222_LAB2\Lab2_template_code.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+ADD_3_DOTS 000000E4
+
+Symbol: ADD_3_DOTS
+   Definitions
+      At line 95 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 79 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: ADD_3_DOTS used once
+BIT_ZERO 000000DA
+
+Symbol: BIT_ZERO
+   Definitions
+      At line 90 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 84 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: BIT_ZERO used once
+CHAR2MORSE 00000086
+
+Symbol: CHAR2MORSE
+   Definitions
+      At line 65 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 32 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: CHAR2MORSE used once
+DELAY 0000006E
+
+Symbol: DELAY
+   Definitions
+      At line 57 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 39 in file N:\ECE222_LAB2\Lab2_template_code.s
+      At line 87 in file N:\ECE222_LAB2\Lab2_template_code.s
+      At line 97 in file N:\ECE222_LAB2\Lab2_template_code.s
+
+DOTS_AND_R1 0000003C
+
+Symbol: DOTS_AND_R1
+   Definitions
+      At line 37 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 25 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: DOTS_AND_R1 used once
+EXIT_SUBR 000000F2
+
+Symbol: EXIT_SUBR
+   Definitions
+      At line 100 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 98 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: EXIT_SUBR used once
+GO_BACK 0000009A
+
+Symbol: GO_BACK
+   Definitions
+      At line 71 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 76 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: GO_BACK used once
+InputChar 000000F8
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+
+Symbol: InputChar
+   Definitions
+      At line 103 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 26 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: InputChar used once
+LED_OFF 0000005E
+
+Symbol: LED_OFF
+   Definitions
+      At line 50 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 37 in file N:\ECE222_LAB2\Lab2_template_code.s
+      At line 92 in file N:\ECE222_LAB2\Lab2_template_code.s
+      At line 95 in file N:\ECE222_LAB2\Lab2_template_code.s
+
+LED_ON 0000004E
+
+Symbol: LED_ON
+   Definitions
+      At line 43 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 85 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: LED_ON used once
+LOOP_BIT 000000B2
+
+Symbol: LOOP_BIT
+   Definitions
+      At line 78 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 89 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: LOOP_BIT used once
+Loop1 0000007E
+
+Symbol: Loop1
+   Definitions
+      At line 61 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 62 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: Loop1 used once
+MAIN_LOOP 0000001E
+
+Symbol: MAIN_LOOP
+   Definitions
+      At line 24 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 35 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: MAIN_LOOP used once
+Morse_LUT 00000100
+
+Symbol: Morse_LUT
+   Definitions
+      At line 107 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 30 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: Morse_LUT used once
+My_code 00000000
+
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Relocatable symbols
+
+Symbol: My_code
+   Definitions
+      At line 8 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      None
+Comment: My_code unused
+RESTART_PROGRAM 00000022
+
+Symbol: RESTART_PROGRAM
+   Definitions
+      At line 26 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 41 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: RESTART_PROGRAM used once
+RETURN 000000D0
+
+Symbol: RETURN
+   Definitions
+      At line 87 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 93 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: RETURN used once
+SKIP 000000AE
+
+Symbol: SKIP
+   Definitions
+      At line 77 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 72 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: SKIP used once
+SKIP_ON 000000D4
+
+Symbol: SKIP_ON
+   Definitions
+      At line 88 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 91 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: SKIP_ON used once
+__MAIN 00000000
+
+Symbol: __MAIN
+   Definitions
+      At line 11 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 9 in file N:\ECE222_LAB2\Lab2_template_code.s
+Comment: __MAIN used once
+20 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+LED_ADR 2009C020
+
+Symbol: LED_ADR
+   Definitions
+      At line 118 in file N:\ECE222_LAB2\Lab2_template_code.s
+   Uses
+      At line 45 in file N:\ECE222_LAB2\Lab2_template_code.s
+      At line 52 in file N:\ECE222_LAB2\Lab2_template_code.s
+
+1 symbol
+353 symbols in table

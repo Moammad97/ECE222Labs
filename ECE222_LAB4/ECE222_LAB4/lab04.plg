@@ -1,0 +1,16 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+N:\ECE222_LAB4\lab04.uvproj
+Project File Date:  03/25/2014
+
+<h2>Output:</h2>
+Rebuild target 'LPC1768_RAM'
+assembling Lab4_template.s...
+assembling startup_LPC17xx.s...
+linking...
+lab04.sct(8): warning: L6314W: No section matches pattern *(InRoot$$Sections).
+Program Size: Code=496 RO-data=204 RW-data=0 ZI-data=512  
+"lab04.axf" - 0 Error(s), 1 Warning(s).

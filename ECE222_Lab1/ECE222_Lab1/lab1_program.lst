@@ -1,0 +1,132 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;-------------------------------------------------------
+                       ---------------------
+    2 00000000         ; Name: Lab_1_program.s
+    3 00000000         ; Purpose: This code flashes one LED at approximately 1 
+                       Hz frequency
+    4 00000000         ; Author: Rasoul Keshavarzi
+    5 00000000         ;-------------------------------------------------------
+                       ---------------------
+    6 00000000                 THUMB                        ; Declare THUMB ins
+                                                            truction set
+    7 00000000                 AREA             My_code, CODE, READONLY ;
+    8 00000000                 EXPORT           __MAIN      ; Label __MAIN is u
+                                                            sed externally q
+    9 00000000                 ENTRY
+   10 00000000         __MAIN
+   11 00000000         ; The following operations can be done in simpler method
+                       s. They are done in this
+   12 00000000         ; way to practice different memory addressing methods.
+   13 00000000         ; MOV #0xWXYZ writes the value 0xWXYZ into the lower wor
+                       d (16 bits) and clears the upper word
+   14 00000000         ; MOVT #0xPQRS writes the value 0xPQRS into the upper wo
+                       rd
+   15 00000000 F04F 5680       MOV              R6, #0x10000000 ;Move 0x1000000
+                                                            0 into R6
+   16 00000004         ;LSL R6, #4
+   17 00000004 F44F 4240       MOV              R2, #0xC000 ; Move 0xC000 into 
+                                                            R2
+   18 00000008 F04F 0400       MOV              R4, #0x0    ; Initialize R4 reg
+                                                            ister to 0 to build
+                                                             address
+   19 0000000C F2C2 0409       MOVT             R4, #0x2009 ; Assign 0x2009 to 
+                                                            higher part of R4
+   20 00000010 4414            ADD              R4, R4, R2  ; Add 0xC000 to R4 
+                                                            to get 0x2009C000
+   21 00000012 F04F 037C       MOV              R3, #0x0000007C ; Move initial 
+                                                            value for port P2 i
+                                                            nto R3
+   22 00000016 6423            STR              R3, [R4, #0x40] ; Turns off fiv
+                                                            e LEDs on port 2
+   23 00000018 F04F 4330       MOV              R3, #0xB0000000 ; Move initial 
+                                                            value for port P1 i
+                                                            nto R3
+   24 0000001C 6223            STR              R3, [R4, #0x20] ; Turns off thr
+                                                            ee LEDs on Port 1
+   25 0000001E F04F 0220       MOV              R2, #0x20   ; Put Port 1 offset
+                                                             into register R2
+   26 00000022 F64F 70FF       MOV              R0, #0xFFFF ; Initialize R0 for
+                                                             countdown
+   27 00000026 EA4F 00C0       LSL              R0, R0, #3
+   28 0000002A         Loop2
+   29 0000002A         Loop1
+   30 0000002A 3801            SUBS             R0, #1      ; Decrement R0 and 
+                                                            set N,Z,V,C status 
+                                                            bits
+   31 0000002C DCFD            BGT              Loop1
+   32 0000002E 6A25            LDR              R5, [R4, #0x20] ;Load R5 with t
+                                                            he address 0x2009C0
+                                                            20 ; Could I do LDR
+                                                             R5, #0x2009C020
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   33 00000030 EA85 0506       EOR              R5, R5, R6  ;XOR between R5 and
+                                                             R6 and put the res
+                                                            ult in R5. Toggling
+                                                             bit 28. R6 initial
+                                                            ized in the first l
+                                                            ine ; I changed the
+                                                               STR R3, [R4, R2]
+                                                               by the following
+                                                             line
+   34 00000034 50A5            STR              R5, [R4, R2] ; Toggle the bit 2
+                                                            8 or port 1
+   35 00000036 F64F 70FF       MOV              R0, #0xFFFF ; Initialize R0 for
+                                                             countdown
+   36 0000003A EA4F 00C0       LSL              R0, R0, #3
+   37 0000003E E7F4            B                Loop2       ; Keeps the LED fla
+                                                            shing forever!
+   38 00000040                 END
+Command Line: --debug --xref --cpu=Cortex-M3 --apcs=interwork --depend=lab1_pro
+gram.d -olab1_program.o -IC:\Software\Keil\ARM\RV31\INC -IC:\Software\Keil\ARM\
+CMSIS\Include -IC:\Software\Keil\ARM\Inc\NXP\LPC17xx --list=lab1_program.lst la
+b1_program.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+Loop1 0000002A
+
+Symbol: Loop1
+   Definitions
+      At line 29 in file lab1_program.s
+   Uses
+      At line 31 in file lab1_program.s
+Comment: Loop1 used once
+Loop2 0000002A
+
+Symbol: Loop2
+   Definitions
+      At line 28 in file lab1_program.s
+   Uses
+      At line 37 in file lab1_program.s
+Comment: Loop2 used once
+My_code 00000000
+
+Symbol: My_code
+   Definitions
+      At line 7 in file lab1_program.s
+   Uses
+      None
+Comment: My_code unused
+__MAIN 00000000
+
+Symbol: __MAIN
+   Definitions
+      At line 10 in file lab1_program.s
+   Uses
+      At line 8 in file lab1_program.s
+Comment: __MAIN used once
+4 symbols
+334 symbols in table

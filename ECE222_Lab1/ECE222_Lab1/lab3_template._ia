@@ -1,0 +1,5 @@
+--cpu Cortex-M3 -g --apcs=interwork 
+-I C:\Software\Keil\ARM\RV31\INC 
+-I C:\Software\Keil\ARM\CMSIS\Include 
+-I C:\Software\Keil\ARM\Inc\NXP\LPC17xx 
+--list ".\Lab3_template.lst" --xref -o ".\Lab3_template.o" --depend ".\Lab3_template.d" "N:\ECE222_LAB3\Lab3_template.s"

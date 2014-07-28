@@ -1,0 +1,3 @@
+Dependencies for Project 'lab1', Target 'LPC1768_RAM': (DO NOT MODIFY !)
+F (N:\ECE222_LAB2\startup_LPC17xx.s)(0x52F430F1)(--cpu Cortex-M3 -g --apcs=interwork -I C:\Software\Keil\ARM\RV31\INC -I C:\Software\Keil\ARM\CMSIS\Include -I C:\Software\Keil\ARM\Inc\NXP\LPC17xx --list ".\startup_LPC17xx.lst" --xref -o ".\startup_LPC17xx.o" --depend ".\startup_LPC17xx.d")
+F (.\Lab4_template.s)(0x53332A96)(--cpu Cortex-M3 -g --apcs=interwork -I C:\Software\Keil\ARM\RV31\INC -I C:\Software\Keil\ARM\CMSIS\Include -I C:\Software\Keil\ARM\Inc\NXP\LPC17xx --list "Lab4_template.lst" --xref -o "Lab4_template.o" --depend "Lab4_template.d")

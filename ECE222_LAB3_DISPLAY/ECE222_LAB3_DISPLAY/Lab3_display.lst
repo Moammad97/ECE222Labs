@@ -1,0 +1,362 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ; ECE-222 Lab ... Winter 2014 term 
+    2 00000000         ; Lab 3 sample code 
+    3 00000000                 THUMB                        ; Thumb instruction
+                                                             set 
+    4 00000000                 AREA             My_code, CODE, READONLY
+    5 00000000                 EXPORT           __MAIN
+    6 00000000                 ENTRY
+    7 00000000         __MAIN
+    8 00000000         
+    9 00000000         ; The following lines are similar to Lab-1 but use a def
+                       ined address to make it easier.
+   10 00000000         ; They just turn off all LEDs 
+   11 00000000 F8DF 909C       LDR              R9, =LED_BASE_ADR ; R9 is a per
+                                                            menant pointer to t
+                                                            he base address for
+                                                             the LEDs, offset o
+                                                            f 0x20 and 0x40 for
+                                                             the ports
+   12 00000004 F04F 4330       MOV              R3, #0xB0000000
+   13 00000008 F8C9 3020       STR              R3, [R9, #0x20] ; Turn off thre
+                                                            e LEDs on port 1  
+   14 0000000C F04F 037C       MOV              R3, #0x0000007C
+   15 00000010 F8C9 3040       STR              R3, [R9, #0x40] ; Turn off five
+                                                             LEDs on port 2 
+   16 00000014         ; This line initializes R10 to a 16-bit non-zero value. 
+                       
+   17 00000014 F04F 0600 
+                       START_AGAIN
+                               MOV              R6, 0x00    ; R6 will be my cou
+                                                            nter
+   18 00000018 F106 0601 
+                       INC     ADD              R6, R6, #1  ; Incrementing the 
+                                                            counter
+   19 0000001C F1B6 05FF       SUBS             R5, R6, #0xFF ; Checking if the
+                                                             counter achieved F
+                                                            F
+   20 00000020 4634            MOV              R4, R6      ; Coping the value 
+                                                            from R6 in R4. This
+                                                             way I don't lose t
+                                                            he data of my count
+                                                            er. I will use R4 l
+                                                            ater to display my 
+                                                            bits
+   21 00000022 D0F7            BEQ              START_AGAIN
+   22 00000024         ;BUTTON_PRESSED MOV   R8, #4
+   23 00000024         ;NEXT_BYTE  MOV   R0, #0x00
+   24 00000024 F04F 0000       MOV              R0, #0x00
+   25 00000028 F04F 0108       MOV              R1, #8      ; It will be used t
+                                                            o check how many bi
+                                                            ts I passed to R0 (
+                                                            8 bits to send 1 by
+                                                            te)
+   26 0000002C 0864    TRANSFER_BYTE
+                               LSRS             R4, R4, #1  ; Transfering the l
+                                                            east significant bi
+                                                            t of R4... 
+   27 0000002E EA4F 0030       RRX              R0, R0      ; ...to the most si
+                                                            gnificant position 
+                                                            of R0
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   28 00000032 1E49            SUBS             R1, R1, #1  ; Checking how many
+                                                             bits I passed
+   29 00000034 DCFA            BGT              TRANSFER_BYTE
+   30 00000036 F000 F805       BL               DISPLAY_NUM
+   31 0000003A F44F 727A       MOV              R2, #1000   ; Putting 10000 int
+                                                            o R2 to do the righ
+                                                            t 0.1mS delay
+   32 0000003E F000 F827       BL               DELAY       ; Calling the DELAY
+                                                            
+   33 00000042 E7E9            B                INC
+   34 00000044         
+   35 00000044         
+   36 00000044         ;
+   37 00000044         ; GUIDE: Display the number in R3 onto the 8 LEDs
+   38 00000044         ; MARINA: Display the number in R4 onto the 8 LEDs
+   39 00000044 E92D 5FFF 
+                       DISPLAY_NUM
+                               STMFD            R13!,{R0 - R12, R14}
+   40 00000048         ; Usefull commaands:  RBIT (reverse bits), BFC (bit fiel
+                       d clear), LSR & LSL to shift bits left and right, ORR & 
+                       AND and EOR for bitwise operations
+   41 00000048 F04F 31FF       MOV              R1, #0xFFFFFFFF ; It will be us
+                                                            ed to invert the bi
+                                                            ts  
+   42 0000004C F04F 0505       MOV              R5, #5      ; It will be used t
+                                                            o check the number 
+                                                            of bits I passed to
+                                                             another register
+   43 00000050 F04F 0600       MOV              R6, #0x00   ; It will be used t
+                                                            o store the right v
+                                                            alue to turn on the
+                                                             required LEDS of p
+                                                            ort P1
+   44 00000054 F04F 0700       MOV              R7, #0x00   ; It will be used t
+                                                            o store the right v
+                                                            alue to turn on the
+                                                             required LEDS of p
+                                                            ort P2
+   45 00000058 EA80 0001       EOR              R0, R0, R1  ; Inverting the bit
+                                                            s: bits 0 turn into
+                                                             1 and bits 1 turn 
+                                                            into 0 (because the
+                                                             led turns on with 
+                                                            0, not with 1)
+   46 0000005C FA90 F0A0       RBIT             R0, R0      ; Invert the order 
+                                                            of the bits 
+   47 00000060 0840            LSRS             R0, R0, #1  ; Putting the bits 
+                                                            5, 6, 7 into bits 2
+                                                            8, 29, 31 to turn o
+                                                            n the LEDS. (actual
+                                                            ly it's the bit 7 t
+                                                            hat was in R4. The 
+                                                            bit 7 of R4 become 
+                                                            the bit 32 in R0 an
+                                                            d then bit 1 after 
+                                                            the RBIT)
+   48 00000062 EA4F 0636       RRX              R6, R6      ; 
+   49 00000066 0840            LSRS             R0, R0, #1  ;
+   50 00000068 EA4F 0636       RRX              R6, R6      ;
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+   51 0000006C EA4F 0656       LSR              R6, R6, #1  ; Putting a 0 in th
+                                                            e bit 30. It was ne
+                                                            cessary to set corr
+                                                            ectly the data to p
+                                                            ut in the LED addre
+                                                            ss
+   52 00000070 0840            LSRS             R0, R0, #1  ; Putting the bits 
+                                                            5, 6, 7 into bits 2
+                                                            8, 29, 31 to turn o
+                                                            n the LEDS
+   53 00000072 EA4F 0636       RRX              R6, R6      ; Now R6 has the ri
+                                                            ght value to turn o
+                                                            n LEDS P1.28, P1.29
+                                                             and P1.31
+   54 00000076 0840    AGAIN   LSRS             R0, R0, #1  ; Putting the bits 
+                                                            4,3,2,1,0 into into
+                                                             R7 to turn on the 
+                                                            LEDS P2.2, P2.3, P2
+                                                            .4, P2.5, P2.6  (Ac
+                                                            tually these bits h
+                                                            ad these position i
+                                                            n the register R4. 
+                                                            After the bit 0 bec
+                                                            ome the bit 25 in R
+                                                            0 and then bit 7 af
+                                                            ter the RBIT)
+   55 00000078 EA4F 0737       RRX              R7, R7
+   56 0000007C 1E6D            SUBS             R5, R5, #1  ; Checking how many
+                                                             bits I put in R7
+   57 0000007E DCFA            BGT              AGAIN
+   58 00000080 EA4F 6757       LSR              R7, R7, #25 ; Shifting 25 times
+                                                            . This way the bits
+                                                             that I moved to R7
+                                                             can be in the righ
+                                                            t bit position (fir
+                                                            st bit that I moved
+                                                             will be in the bit
+                                                             2). 
+   59 00000084 F8C9 6020       STR              R6, [R9, #0x20] ; Turn off thre
+                                                            e LEDs on port 1  
+   60 00000088 F8C9 7040       STR              R7, [R9, #0x40] ; Turn off five
+                                                             LEDs on port 2
+   61 0000008C E8BD 9FFF       LDMFD            R13!,{R0 - R12, R15}
+   62 00000090         
+   63 00000090         ;  Delay 0.1ms (100us) * R2 times
+   64 00000090         ;   aim for better than 10% accuracy
+   65 00000090         ; code to generate a delay of 0.1mS * R2 times
+   66 00000090 B50C    DELAY   STMFD            R13!,{R2, R3, R14}
+   67 00000092 F04F 0383       MOV              R3, #0x83   ; decrement this va
+                                                            lue to have a delay
+                                                             of 0.1mS 
+   68 00000096 FB03 F302       MUL              R3, R3, R2  ; R2 sets the amoun
+                                                            t of delay I wanna 
+                                                            do, since I know th
+                                                            at R3 can generate 
+                                                            a delay of 0.1mS
+   69 0000009A 1E5B    LOOP1   SUBS             R3, R3, #1  ; decrement counter
+                                                             R3
+   70 0000009C D1FD            BNE              LOOP1
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+   71 0000009E BD0C            LDMFD            R13!,{R2, R3, R15}
+   72 000000A0         
+   73 000000A0                 ALIGN
+   74 000000A0         
+   75 000000A0 2009C000 
+                       LED_BASE_ADR
+                               EQU              0x2009C000  ; Base address of t
+                                                            he memory that cont
+                                                            rols the LEDs 
+   76 000000A0 2009C055 
+                       FIO2PIN1
+                               EQU              0x2009C055  ; FIO2PIN1 = 0x2009
+                                                             C055
+   77 000000A0 4002C00C 
+                       PINSEL3 EQU              0x4002C00c  ; Address of Pin Se
+                                                            lect Register 3 for
+                                                             P1[31:16]
+   78 000000A0 4002C010 
+                       PINSEL4 EQU              0x4002C010  ; Address of Pin Se
+                                                            lect Register 4 for
+                                                             P2[15:0]
+   79 000000A0         ; Usefull GPIO Registers
+   80 000000A0         ; FIODIR  - register to set individual pins as input or 
+                       output
+   81 000000A0         ; FIOPIN  - register to read and write pins
+   82 000000A0         ; FIOSET  - register to set I/O pins to 1 by writing a 1
+                       
+   83 000000A0         ; FIOCLR  - register to clr I/O pins to 0 by writing a 1
+                       
+   84 000000A0         
+   85 000000A0                 END
+              2009C000 
+Command Line: --debug --xref --cpu=Cortex-M3 --apcs=interwork --depend=Lab3_dis
+play.d -oLab3_display.o -IC:\Software\Keil\ARM\RV31\INC -IC:\Software\Keil\ARM\
+CMSIS\Include -IC:\Software\Keil\ARM\Inc\NXP\LPC17xx --list=Lab3_display.lst La
+b3_display.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+AGAIN 00000076
+
+Symbol: AGAIN
+   Definitions
+      At line 54 in file Lab3_display.s
+   Uses
+      At line 57 in file Lab3_display.s
+Comment: AGAIN used once
+DELAY 00000090
+
+Symbol: DELAY
+   Definitions
+      At line 66 in file Lab3_display.s
+   Uses
+      At line 32 in file Lab3_display.s
+Comment: DELAY used once
+DISPLAY_NUM 00000044
+
+Symbol: DISPLAY_NUM
+   Definitions
+      At line 39 in file Lab3_display.s
+   Uses
+      At line 30 in file Lab3_display.s
+Comment: DISPLAY_NUM used once
+INC 00000018
+
+Symbol: INC
+   Definitions
+      At line 18 in file Lab3_display.s
+   Uses
+      At line 33 in file Lab3_display.s
+Comment: INC used once
+LOOP1 0000009A
+
+Symbol: LOOP1
+   Definitions
+      At line 69 in file Lab3_display.s
+   Uses
+      At line 70 in file Lab3_display.s
+Comment: LOOP1 used once
+My_code 00000000
+
+Symbol: My_code
+   Definitions
+      At line 4 in file Lab3_display.s
+   Uses
+      None
+Comment: My_code unused
+START_AGAIN 00000014
+
+Symbol: START_AGAIN
+   Definitions
+      At line 17 in file Lab3_display.s
+   Uses
+      At line 21 in file Lab3_display.s
+Comment: START_AGAIN used once
+TRANSFER_BYTE 0000002C
+
+Symbol: TRANSFER_BYTE
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+   Definitions
+      At line 26 in file Lab3_display.s
+   Uses
+      At line 29 in file Lab3_display.s
+Comment: TRANSFER_BYTE used once
+__MAIN 00000000
+
+Symbol: __MAIN
+   Definitions
+      At line 7 in file Lab3_display.s
+   Uses
+      At line 5 in file Lab3_display.s
+Comment: __MAIN used once
+9 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+FIO2PIN1 2009C055
+
+Symbol: FIO2PIN1
+   Definitions
+      At line 76 in file Lab3_display.s
+   Uses
+      None
+Comment: FIO2PIN1 unused
+LED_BASE_ADR 2009C000
+
+Symbol: LED_BASE_ADR
+   Definitions
+      At line 75 in file Lab3_display.s
+   Uses
+      At line 11 in file Lab3_display.s
+Comment: LED_BASE_ADR used once
+PINSEL3 4002C00C
+
+Symbol: PINSEL3
+   Definitions
+      At line 77 in file Lab3_display.s
+   Uses
+      None
+Comment: PINSEL3 unused
+PINSEL4 4002C010
+
+Symbol: PINSEL4
+   Definitions
+      At line 78 in file Lab3_display.s
+   Uses
+      None
+Comment: PINSEL4 unused
+4 symbols
+345 symbols in table

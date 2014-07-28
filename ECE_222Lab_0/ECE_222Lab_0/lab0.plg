@@ -1,0 +1,18 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+N:\ECE_222Lab_0\lab0.uvproj
+Project File Date:  01/15/2014
+
+<h2>Output:</h2>
+Build target 'LPC1768_FLASH'
+linking...
+lab0.sct(8): warning: L6314W: No section matches pattern *(InRoot$$Sections).
+Program Size: Code=564 RO-data=204 RW-data=0 ZI-data=512  
+"lab0.axf" - 0 Error(s), 1 Warning(s).
+Load "N:\\ECE_222Lab_0\\lab0.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.

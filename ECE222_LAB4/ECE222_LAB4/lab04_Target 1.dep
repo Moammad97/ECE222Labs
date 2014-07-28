@@ -1,0 +1,3 @@
+Dependencies for Project 'lab04', Target 'Target 1': (DO NOT MODIFY !)
+F (.\Lab4_template.s)(0x5331D962)()
+F (.\startup_LPC17xx.s)(0x5313E9C2)()
